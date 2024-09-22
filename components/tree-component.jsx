@@ -16,14 +16,15 @@ export default function TreeComponent({ treeData }) {
   useEffect(() => {
     if (Array.isArray(treeData)) {
       setNodeListState(treeData);
+    } else {
+      treeData(setNodeListState);
     }
-    treeData(setNodeListState);
   }, []);
 
   return (
     <ul style={{ paddingLeft: "0.3em", marginLeft: "0.3em" }}>
       {(nodeListState ?? []).map((node) => (
-        <TreeNodeComponent key={node.key} node={node} />
+        <TreeNodeComponent key={node.key ?? node.label} node={node} />
       ))}
     </ul>
   );
