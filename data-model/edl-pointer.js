@@ -1,7 +1,7 @@
-export default function EdlPointer(name) {
+export default function EdlPointer(origin) {
   return {
     leafType: "edl pointer",
     isPointer: true,
-    name
+    origin
   };
 };
