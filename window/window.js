@@ -1,3 +1,3 @@
 import { initCache } from "../auxiliary/cache";
 
-initCache(true).filenames();
+initCache(electron, true);

@@ -1,13 +1,18 @@
-import { useEffect, useState } from "react";
-import CacheItem from "./cache-item";
+import getCache from "../auxiliary/cache";
+import TreeComponent from "./tree-component";
 
 export default function CacheList() {
+  return (<TreeComponent
+    treeData={setNodeTreeData => getCache().filenames().then(names => setNodeTreeData(names.map(makeNode)))}>
+  </TreeComponent>);
+}
 
-  let [listState, setListState] = useState([]);
-
-  useEffect(() => {
-    electron.loadFiles(name).then(c => setListState(c));
-  }, []);
-
-return <ul>{listState.map(item => (<CacheItem key={item} name={item}></CacheItem>))}</ul>;
+function makeNode(name) {
+  return {
+    key: name,
+    children: setNodeListState => {
+      getCache().get(name).then(content => setNodeListState([{ key: "content", label: "content:", value: content}]))
+    },
+    label: name
+  };
 }
