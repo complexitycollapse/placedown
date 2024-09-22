@@ -49,7 +49,7 @@ function SimpleCache(api, instrumentation) {
       if (promises.has(name)) { 
         return await promises.get(name);
       }
-      throw Error("Cache miss! Item not found: " + name);
+      throw new Error("Cache miss! Item not found: " + name);
     }
   };
 }
