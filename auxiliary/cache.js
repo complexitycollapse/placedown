@@ -1,10 +1,11 @@
 let cache = undefined;
 
 export default function getCache() { return cache; }
-export function initCache(instrumentation) { cache = SimpleCache(instrumentation); return cache; }
+export function initCache(api, instrumentation) { cache = SimpleCache(api, instrumentation); return cache; }
 
-function SimpleCache(instrumentation) {
-  let filenames = undefined;
+function SimpleCache(api, instrumentation) {
+  let filenamesPromise = undefined;
+  let filenamesList = undefined;
   const leaves = new Map();
   let promises = undefined;
 
@@ -13,8 +14,8 @@ function SimpleCache(instrumentation) {
 
     promises = new Map();
 
-    for (const name of filenames) {
-      promises.set(name, electron.loadFile(name).then(content => {
+    for (const name of filenamesList) {
+      promises.set(name, api.loadFile(name).then(content => {
         leaves.set(name, content);
         promises.delete(name);
         if (instrumentation) {
@@ -25,15 +26,21 @@ function SimpleCache(instrumentation) {
   }
 
   return {
-    filenames: async function() {
-      if (!filenames) {
-        filenames = await electron.loadFiles();
-        if (instrumentation) {
-          console.log("Cache: loaded file list", filenames);
+    filenames: function() {
+      if (filenamesPromise) { return filenamesPromise; }
+
+      filenamesPromise = (async () => {
+        if (!filenamesList) {
+          filenamesList = await api.loadFiles();
+          if (instrumentation) {
+            console.log("Cache: loaded file list", filenamesList);
+          }
+          loadCache(); // Don't await. Let them load in the background.
         }
-        loadCache(); // Don't await. Let them load in the background.
-      }
-      return filenames;
+        return filenamesList;
+      })();
+
+      return filenamesPromise;
     },
 
     get: async function(name) {
