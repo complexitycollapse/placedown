@@ -1,5 +1,6 @@
-export default function ContentPersister(initialPointer) {
+export default function ContentPersister(key, initialPointer) {
   const obj = {
+    key,
     type: "content",
     state: "immutable",
     pointer: initialPointer,

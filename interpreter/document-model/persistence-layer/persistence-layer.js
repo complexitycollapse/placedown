@@ -1,13 +1,16 @@
-import ContentPersister from "./content-persister.js";
-import { getCache } from "../../../auxiliary/cache.js";
+import ContentPersister from "./content-persister";
+import getCache from "../../../auxiliary/cache";
 
 export default function PersistenceLayer() {
+
+  let unique = 0;
+
   const obj = {
     objects: [],
     load: pointer => {
       let persister = undefined;
       if (pointer.isContent) {
-        persister = ContentPersister(pointer);
+        persister = ContentPersister((++unique).toString(), pointer);
       }
 
       obj.objects.push(persister);
