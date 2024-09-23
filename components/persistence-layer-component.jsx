@@ -1,13 +1,16 @@
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import DocumentModel from "../interpreter/document-model/document-model";
 import TreeComponent from "./tree-component";
+import useSubscriber from "../common/use-subscriber";
 
 export default function PersistenceLayerComponent() {
 
   const [model] = useState(DocumentModel());
-  const [subscriber] = useState(createSubscriber(model));
 
-  useSyncExternalStore(subscriber.subscribe, subscriber.getSnapshot);
+  const nodes = useSubscriber(
+    model.persistenceLayer.subscribeToAdd,
+    model.persistenceLayer.unsubscribeToAdd,
+    () => model.persistenceLayer.objects.map(createNodes));
 
   function addHandler() {
     const nameInput = document.getElementById("addPersistenceNode");
@@ -22,29 +25,10 @@ export default function PersistenceLayerComponent() {
       <input type="text" id="addPersistenceNode" defaultValue='{"origin":"content","isContent":true}'></input>
       <input type="button" onClick={addHandler} value="Load"></input>
       <TreeComponent
-        treeData={ subscriber.getSnapshot() }>
+        treeData={ nodes }>
       </TreeComponent>
     </div>
   );
-}
-
-function createSubscriber(model) {
-  let snapshot = getNodesSnapshot(model);
-  return {
-    subscribe: callback => {
-      const wrappedCallback =  () => {
-        snapshot = getNodesSnapshot(model);
-        callback();
-      }
-      model.persistenceLayer.subscribeToAdd(wrappedCallback);
-      return () => model.persistenceLayer.unsubscribeToAdd(wrappedCallback);
-    },
-    getSnapshot: () => snapshot
-  };
-}
-
-function getNodesSnapshot(model) {
-  return model.persistenceLayer.objects.map(createNodes);
 }
 
 function createNodes(persister) {
