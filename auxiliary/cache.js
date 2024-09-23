@@ -1,7 +1,10 @@
 let cache = undefined;
 
 export default function getCache() { return cache; }
-export function initCache(api, instrumentation) { cache = SimpleCache(api, instrumentation); return cache; }
+export function initCache(api, instrumentation) {
+  cache = SimpleCache(api, instrumentation);
+  return cache;
+}
 
 function SimpleCache(api, instrumentation) {
   let filenamesPromise = undefined;
@@ -25,26 +28,28 @@ function SimpleCache(api, instrumentation) {
     }
   }
 
-  return {
-    filenames: function() {
-      if (filenamesPromise) { return filenamesPromise; }
+  function filenames() {
+    if (filenamesPromise) { return filenamesPromise; }
 
-      filenamesPromise = (async () => {
-        if (!filenamesList) {
-          filenamesList = await api.loadFiles();
-          if (instrumentation) {
-            console.log("Cache: loaded file list", filenamesList);
-          }
-          loadCache(); // Don't await. Let them load in the background.
+    filenamesPromise = (async () => {
+      if (!filenamesList) {
+        filenamesList = await api.loadFiles();
+        if (instrumentation) {
+          console.log("Cache: loaded file list", filenamesList);
         }
-        return filenamesList;
-      })();
+        loadCache(); // Don't await. Let them load in the background.
+      }
+      return filenamesList;
+    })();
 
-      return filenamesPromise;
-    },
+    return filenamesPromise;
+  }
+
+  return {
+    filenames,
 
     get: async function(name) {
-      await loadCache();
+      await filenames();
       if (leaves.has(name)) { return leaves.get(name); }
       if (promises.has(name)) { 
         return await promises.get(name);
