@@ -1,0 +1,9 @@
+{
+  "type": "example",
+  "clips": [
+    { "type": "span", "start": 0, "length": 10 }
+  ],
+  "links": [
+    { "type": "link", "origin": "example-link.json" }
+  ]
+}

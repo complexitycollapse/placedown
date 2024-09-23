@@ -34,15 +34,23 @@ export default function PersistenceLayerComponent() {
 
 function createNode(persister) {
   return {
-    label: persister.key + " | " + JSON.stringify(persister.pointer),
+    label: persister.type + " | " + JSON.stringify(persister.pointer) + "(" + persister.key + ")",
     children: [
       { label: "pointer", value: JSON.stringify(persister.pointer ) },
       { label: "type", value: persister.type },
       { label: "state", value: persister.state },
-      { label: "value", value: persister.value }
+      { label: "value", value: serializeValue(persister.type, persister.value) }
     ],
     persister
   };
+}
+
+function serializeValue(type, value) {
+  if (type === "content") {
+    return value;
+  } else {
+    return JSON.stringify(value);
+  }
 }
 
 function PersisterComponent({ node }) {
