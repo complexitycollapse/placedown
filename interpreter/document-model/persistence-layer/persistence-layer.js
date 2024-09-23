@@ -20,7 +20,10 @@ export default function PersistenceLayer() {
       obj.objects.push(persister);
       for (const callback of subscriptions) { callback(); }
 
-      getCache().get(pointer.origin).then(content => persister.setValue(content)).catch(reason => console.error(reason));
+      getCache().get(pointer.origin).then(content => {
+        persister.setValue(content);
+        persister.dependents.forEach(callback => callback());
+      }).catch(reason => console.error(reason));
     },
     subscribeToAdd: callback => subscriptions.push(callback),
     unsubscribeToAdd: callback => removeItem(subscriptions, callback)

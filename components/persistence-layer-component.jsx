@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DocumentModel from "../interpreter/document-model/document-model";
 import { createSubscriber } from "../common/use-subscriber";
-import { SubscribingTreeComponent } from "./subscribing-tree-component.jsx";
+import { SubscribingTreeComponent, SubscribingTreeNodeComponent } from "./subscribing-tree-component.jsx";
 
 export default function PersistenceLayerComponent() {
 
@@ -10,7 +10,7 @@ export default function PersistenceLayerComponent() {
   const subscriber = () => createSubscriber(
     model.persistenceLayer.subscribeToAdd,
     model.persistenceLayer.unsubscribeToAdd,
-    () => model.persistenceLayer.objects.map(createNodes));
+    () => model.persistenceLayer.objects.map(persister => ({ key: persister.key, persister })));
 
   function addHandler() {
     const nameInput = document.getElementById("addPersistenceNode");
@@ -25,13 +25,14 @@ export default function PersistenceLayerComponent() {
       <input type="text" id="addPersistenceNode" defaultValue='{"origin":"content","isContent":true}'></input>
       <input type="button" onClick={addHandler} value="Load"></input>
       <SubscribingTreeComponent
-        subscriber = { subscriber }>
+        subscriber = { subscriber }
+        TreeNodeComponent={ PersisterComponent }>
       </SubscribingTreeComponent>
     </div>
   );
 }
 
-function createNodes(persister) {
+function createNode(persister) {
   return {
     label: persister.key + " | " + JSON.stringify(persister.pointer),
     children: [
@@ -39,6 +40,23 @@ function createNodes(persister) {
       { label: "type", value: persister.type },
       { label: "state", value: persister.state },
       { label: "value", value: persister.value }
-    ]
+    ],
+    persister
   };
+}
+
+function PersisterComponent({ node }) {
+
+  const subscriber = () => createSubscriber(
+    node.persister.subscribe,
+    node.persister.unsubscribe,
+    () => {
+      return createNode(node.persister)
+    }
+  );
+
+  return (<SubscribingTreeNodeComponent
+    subscriber = { subscriber }
+    >
+  </SubscribingTreeNodeComponent>);
 }

@@ -5,8 +5,9 @@ export function SubscribingTreeComponent({ subscriber, TreeNodeComponent }) {
   const treeData = useSubscriber(subscriber);
 
   return (<TreeComponent
-    treeData = { treeData }>
-    NodeComponent = { TreeNodeComponent }
+    treeData = { treeData }
+    TreeNodeComponent = { TreeNodeComponent }
+    >
   </TreeComponent>);
 }
 

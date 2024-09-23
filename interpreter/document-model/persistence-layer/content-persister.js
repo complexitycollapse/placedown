@@ -1,3 +1,5 @@
+import { removeItem } from "../../../common/utils";
+
 export default function ContentPersister(key, initialPointer) {
   const obj = {
     key,
@@ -5,7 +7,10 @@ export default function ContentPersister(key, initialPointer) {
     state: "immutable",
     pointer: initialPointer,
     value: undefined,
-    setValue: value => obj.value = value
+    dependents: [],
+    setValue: value => obj.value = value,
+    subscribe: callback => obj.dependents.push(callback),
+    unsubscribe: callback => removeItem(obj.dependents, callback)
   };
 
   return obj;

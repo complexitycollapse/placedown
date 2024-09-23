@@ -24,6 +24,8 @@ function SimpleCache(api, instrumentation) {
         if (instrumentation) {
           console.log("Cache: loaded", name);
         }
+
+        return content;
       }));
     }
   }
@@ -51,7 +53,7 @@ function SimpleCache(api, instrumentation) {
     get: async function(name) {
       await filenames();
       if (leaves.has(name)) { return leaves.get(name); }
-      if (promises.has(name)) { 
+      if (promises.has(name)) {
         return await promises.get(name);
       }
       throw new Error("Cache miss! Item not found: " + name);
