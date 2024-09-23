@@ -17,8 +17,10 @@ export function TreeComponent({ treeData, NodeComponent }) {
   useEffect(() => {
     if (Array.isArray(treeData)) {
       setNodeListState(treeData);
-    } else {
+    } else if (typeof treeData === "function") {
       treeData(setNodeListState);
+    } else {
+      throw new Error("Invalid tree data: " + treeData);
     }
   }, [treeData]);
 

@@ -1,16 +1,16 @@
 import { useState } from "react";
 import DocumentModel from "../interpreter/document-model/document-model";
-import { TreeComponent } from "./tree-component";
-import useSubscriber, { createSubscriber } from "../common/use-subscriber";
+import { createSubscriber } from "../common/use-subscriber";
+import { SubscribingTreeComponent } from "./subscribing-tree-component.jsx";
 
 export default function PersistenceLayerComponent() {
 
   const [model] = useState(DocumentModel());
 
-  const nodes = useSubscriber(() => createSubscriber(
+  const subscriber = () => createSubscriber(
     model.persistenceLayer.subscribeToAdd,
     model.persistenceLayer.unsubscribeToAdd,
-    () => model.persistenceLayer.objects.map(createNodes)));
+    () => model.persistenceLayer.objects.map(createNodes));
 
   function addHandler() {
     const nameInput = document.getElementById("addPersistenceNode");
@@ -24,9 +24,9 @@ export default function PersistenceLayerComponent() {
       <h1>Persistence Layer</h1>
       <input type="text" id="addPersistenceNode" defaultValue='{"origin":"content","isContent":true}'></input>
       <input type="button" onClick={addHandler} value="Load"></input>
-      <TreeComponent
-        treeData={ nodes }>
-      </TreeComponent>
+      <SubscribingTreeComponent
+        subscriber = { subscriber }>
+      </SubscribingTreeComponent>
     </div>
   );
 }
