@@ -2,6 +2,7 @@ export default function LinkPointer(origin) {
   return {
     leafType: "link pointer",
     isPointer: true,
-    origin
+    origin,
+    denotesSame: other => other.leafType === obj.leafType && other.origin === obj.origin
   };
 };

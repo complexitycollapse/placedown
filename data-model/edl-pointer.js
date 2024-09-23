@@ -1,7 +1,10 @@
 export default function EdlPointer(origin) {
-  return {
+  const obj = {
     leafType: "edl pointer",
     isPointer: true,
-    origin
+    origin,
+    denotesSame: other => other.leafType === obj.leafType && other.origin === obj.origin
   };
+
+  return obj;
 };
