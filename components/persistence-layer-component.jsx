@@ -7,7 +7,7 @@ export default function PersistenceLayerComponent() {
 
   const [model] = useState(DocumentModel());
 
-  const nodes = useSubscriber(createSubscriber(
+  const nodes = useSubscriber(() => createSubscriber(
     model.persistenceLayer.subscribeToAdd,
     model.persistenceLayer.unsubscribeToAdd,
     () => model.persistenceLayer.objects.map(createNodes)));
