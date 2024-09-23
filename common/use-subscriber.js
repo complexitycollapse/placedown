@@ -1,13 +1,10 @@
-import { useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
-export default function useSubscriber(subscribeFn, unsubscribeFn, getSnapshot) {
-
-  const [subscriber] = useState(createSubscriber(subscribeFn, unsubscribeFn, getSnapshot));
-
+export default function useSubscriber(subscriber) {
   return useSyncExternalStore(subscriber.subscribe, subscriber.getSnapshot);
 }
 
-function createSubscriber(subscribeFn, unsubscribeFn, getSnapshot) {
+export function createSubscriber(subscribeFn, unsubscribeFn, getSnapshot) {
   let snapshot = getSnapshot();
   return {
     subscribe: callback => {

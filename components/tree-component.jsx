@@ -9,9 +9,10 @@ import { useState, useEffect } from 'react';
  * @param {Array | Promise} treeData A list of nodes or a promise that returns nodes
  * @returns A component representing a list of nodes
  */
-export default function TreeComponent({ treeData }) {
+export function TreeComponent({ treeData, NodeComponent }) {
 
   let [nodeListState, setNodeListState] = useState(undefined);
+  NodeComponent = NodeComponent ?? TreeNodeComponent;
 
   useEffect(() => {
     if (Array.isArray(treeData)) {
@@ -24,13 +25,13 @@ export default function TreeComponent({ treeData }) {
   return (
     <ul style={{ paddingLeft: "0.3em", marginLeft: "0.3em" }}>
       {(nodeListState ?? []).map((node) => (
-        <TreeNodeComponent key={node.key ?? node.label} node={node} />
+        <NodeComponent key={node.key ?? node.label} node={node} />
       ))}
     </ul>
   );
 }
 
-function TreeNodeComponent({ node }) {
+export function TreeNodeComponent({ node }) {
   const { children, label, value } = node;
 
   const [showChildren, setShowChildren] = useState(node.expanded);

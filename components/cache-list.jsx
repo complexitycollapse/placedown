@@ -1,5 +1,5 @@
 import getCache from "../auxiliary/cache";
-import TreeComponent from "./tree-component";
+import { TreeComponent } from "./tree-component";
 
 export default function CacheList() {
   return (
