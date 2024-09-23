@@ -1,4 +1,4 @@
-import { removeItem } from "../../../common/utils";
+import makeObservable from "../observable";
 
 export default function Persister(type, key, initialPointer) {
   const obj = {
@@ -7,10 +7,9 @@ export default function Persister(type, key, initialPointer) {
     state: "immutable",
     pointer: initialPointer,
     value: undefined,
-    dependents: [],
-    subscribe: callback => obj.dependents.push(callback),
-    unsubscribe: callback => removeItem(obj.dependents, callback)
   };
+
+  makeObservable(obj);
 
   return obj;
 }

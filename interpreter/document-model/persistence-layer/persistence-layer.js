@@ -2,19 +2,18 @@ import ContentPersister from "./content-persister";
 import LinkPersister from "./link-persister";
 import EdlPersister from "./edl-persister";
 import getCache from "../../../auxiliary/cache";
-import { removeItem } from "../../../common/utils";
+import Layer from "../layer";
 
 export default function PersistenceLayer() {
 
-  let unique = 0;
-  const subscriptions = [];
-
-  const obj = {
+  const obj = Layer();
+  
+  Object.assign(obj, {
     objects: [],
     load: pointer => {
       let persister = undefined;
-      const key = (++unique).toString();
-      
+      const key = obj.assignId();
+
       if (pointer.isContent) {
         persister = ContentPersister(key, pointer);
       } else if (pointer.leafType === "link pointer") {
@@ -26,16 +25,14 @@ export default function PersistenceLayer() {
       }
 
       obj.objects.push(persister);
-      for (const callback of subscriptions) { callback(); }
+      obj.notifyObservers();
 
       getCache().get(pointer.origin).then(content => {
         persister.setValue(content);
         persister.dependents.forEach(callback => callback());
       }).catch(reason => console.error(reason));
-    },
-    subscribeToAdd: callback => subscriptions.push(callback),
-    unsubscribeToAdd: callback => removeItem(subscriptions, callback)
-  };
+    }
+  });
 
   return obj;
 }
