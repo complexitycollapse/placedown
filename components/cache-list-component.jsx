@@ -1,7 +1,7 @@
 import getCache from "../auxiliary/cache";
 import { TreeComponent } from "./tree-component";
 
-export default function CacheList() {
+export default function CacheListComponent() {
   return (
   <div>
     <h1>Leaf Cache</h1>
