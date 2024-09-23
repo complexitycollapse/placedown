@@ -19,7 +19,7 @@ export default function TreeComponent({ treeData }) {
     } else {
       treeData(setNodeListState);
     }
-  }, []);
+  }, [treeData]);
 
   return (
     <ul style={{ paddingLeft: "0.3em", marginLeft: "0.3em" }}>
