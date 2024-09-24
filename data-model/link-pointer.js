@@ -3,6 +3,7 @@ export default function LinkPointer(origin) {
     leafType: "link pointer",
     isPointer: true,
     origin,
-    denotesSame: other => other.leafType === obj.leafType && other.origin === obj.origin
+    denotesSame: other => other.leafType === obj.leafType && other.origin === obj.origin,
+    overlaps: other => obj.denotesSame(other)
   };
 };

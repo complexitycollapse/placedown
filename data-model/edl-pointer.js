@@ -3,7 +3,8 @@ export default function EdlPointer(origin) {
     leafType: "edl pointer",
     isPointer: true,
     origin,
-    denotesSame: other => other.leafType === obj.leafType && other.origin === obj.origin
+    denotesSame: other => other.leafType === obj.leafType && other.origin === obj.origin,
+    overlaps: other => obj.denotesSame(other)
   };
 
   return obj;
