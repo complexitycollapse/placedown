@@ -11,7 +11,7 @@ export default function PersistenceLayer() {
   Object.assign(obj, {
     elements: [],
     load: pointer => {
-      let persister = obj.elements.find(o => pointer.denotesSame(o.pointer) && pointer.state === "immutable");
+      let persister = obj.elements.find(o => o.contains(pointer) && pointer.state === "immutable");
 
       if (persister) {
         return persister;
@@ -27,13 +27,14 @@ export default function PersistenceLayer() {
 function createPersister(obj, pointer) {
   let persister = undefined;
   const key = obj.assignId();
+  const origin = pointer.origin;
 
   if (pointer.isContent) {
-    persister = ContentPersister(key, pointer);
+    persister = ContentPersister(key, origin);
   } else if (pointer.leafType === "link pointer") {
-    persister = LinkPersister(key, pointer);
+    persister = LinkPersister(key, origin);
   } else if (pointer.leafType === "edl pointer") {
-    persister = EdlPersister(key, pointer);
+    persister = EdlPersister(key, origin);
   } else {
     throw new Error("Unsupported pointer: ", JSON.stringify(pointer));
   }
@@ -41,7 +42,7 @@ function createPersister(obj, pointer) {
   obj.elements.push(persister);
   obj.notifyObservers();
 
-  getCache().get(pointer.origin).then(content => {
+  getCache().get(origin).then(content => {
     persister.setValue(content);
     persister.dependents.forEach(callback => callback());
   }).catch(reason => console.error(reason));

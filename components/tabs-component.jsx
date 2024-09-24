@@ -32,9 +32,9 @@ export default function TabsComponent() {
 
 function interlinkerToNode(element) {
   return {
-    label: JSON.stringify(element.persister.pointer) + "(" + element.key + ")",
+    label: JSON.stringify(element.pointer) + " (" + element.key + ")",
     children: [
-      { label: "pointer", value: JSON.stringify(element.persister.pointer) },
+      { label: "pointer", value: JSON.stringify(element.pointer) },
     ],
     element
   };
@@ -42,9 +42,9 @@ function interlinkerToNode(element) {
 
 function persisterToNode(persister) {
   return {
-    label: persister.type + " | " + JSON.stringify(persister.pointer) + "(" + persister.key + ")",
+    label: persister.type + " | " + persister.origin + " (" + persister.key + ")",
     children: [
-      { label: "pointer", value: JSON.stringify(persister.pointer ) },
+      { label: "origin", value: persister.origin },
       { label: "type", value: persister.type },
       { label: "state", value: persister.state },
       { label: "value", value: serializeValue(persister.type, persister.value) }

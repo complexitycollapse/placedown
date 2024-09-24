@@ -10,7 +10,7 @@ export default function InterlinkLayer(persistenceLayer) {
       const persister = persistenceLayer.load(pointer);
       const key = obj.assignId();
 
-      const interlinker = Interlinker(key, persister);
+      const interlinker = Interlinker(key, pointer, persister);
       obj.elements.push(interlinker);
       obj.notifyObservers();
       return interlinker;
