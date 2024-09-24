@@ -35,6 +35,7 @@ function interlinkerToNode(element) {
     label: JSON.stringify(element.pointer) + " (" + element.key + ")",
     children: [
       { label: "pointer", value: JSON.stringify(element.pointer) },
+      { label: "persister", value: element.persister.type + " | " + element.persister.origin + " (" + element.persister.key + ")" }
     ],
     element
   };

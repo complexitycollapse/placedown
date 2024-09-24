@@ -10,21 +10,29 @@ export default function PersistenceLayer() {
   
   Object.assign(obj, {
     elements: [],
-    load: pointer => {
+    load: (pointer, callback) => {
       let persister = obj.elements.find(o => o.contains(pointer) && pointer.state === "immutable");
 
       if (persister) {
+        if (callback) {
+          if (persister.value === undefined) {
+            persister.subscribe(callback);
+          } else {
+            setImmediate(() => callback(persister));
+          }
+        }
+        
         return persister;
       }
 
-      return createPersister(obj, pointer);
+      return createPersister(obj, pointer, callback);
     }
   });
 
   return obj;
 }
 
-function createPersister(obj, pointer) {
+function createPersister(obj, pointer, callback) {
   let persister = undefined;
   const key = obj.assignId();
   const origin = pointer.origin;
@@ -40,11 +48,12 @@ function createPersister(obj, pointer) {
   }
 
   obj.elements.push(persister);
+  if (callback) { persister.subscribe(callback); }
   obj.notifyObservers();
 
   getCache().get(origin).then(content => {
     persister.setValue(content);
-    persister.dependents.forEach(callback => callback());
+    persister.dependents.forEach(callback => callback(persister));
   }).catch(reason => console.error(reason));
 
   return persister;

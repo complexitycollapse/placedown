@@ -7,7 +7,7 @@ export default function InterlinkLayer(persistenceLayer) {
   Object.assign(obj, {
     elements: [],
     load: pointer => {
-      const persister = persistenceLayer.load(pointer);
+      const persister = persistenceLayer.load(pointer, onPersisterChanged);
       const key = obj.assignId();
 
       const interlinker = Interlinker(key, pointer, persister);
@@ -16,6 +16,12 @@ export default function InterlinkLayer(persistenceLayer) {
       return interlinker;
     }
   });
+
+  function onPersisterChanged(persister) {
+    const affectedElements = obj.elements.filter(i => persister.contains(i));
+
+    affectedElements.forEach(e => e.onPersisterUpdated());
+  }
 
   return obj;
 }
