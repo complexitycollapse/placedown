@@ -1,6 +1,8 @@
-export default function Connector(origin, target) {
+export default function Connector(linkPersister, endIndex, pointerIndex, targetInterlinker) {
   return {
-    origin,
-    target
+    linkPersister,
+    endIndex,
+    pointerIndex,
+    targetInterlinker // will be undefined if the interlinker has not been loaded
   };
 }

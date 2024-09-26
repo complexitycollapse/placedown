@@ -8,7 +8,7 @@ export default function Layer() {
     subscribeToAdd: callback => subscriptions.push(callback),
     unsubscribeToAdd: callback => removeItem(subscriptions, callback),
     assignId: () => (++unique).toString(),
-    notifyObservers: () => {
+    notify: () => {
       for (const callback of subscriptions) { callback(); }
     }
   }

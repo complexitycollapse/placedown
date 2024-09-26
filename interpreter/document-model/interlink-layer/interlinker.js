@@ -4,9 +4,9 @@ export default function Interlinker(key, pointer, persister) {
   const obj = {
     key,
     pointer,
-    incomming: [],
-    persister,
-    onPersisterUpdated: () => undefined
+    incoming: [],
+    outgoing: [],
+    persister
   };
 
   makeObservable(obj);

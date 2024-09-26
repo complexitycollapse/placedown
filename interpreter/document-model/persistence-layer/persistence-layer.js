@@ -49,11 +49,11 @@ function createPersister(obj, pointer, callback) {
 
   obj.elements.push(persister);
   if (callback) { persister.subscribe(callback); }
-  obj.notifyObservers();
+  obj.notify();
 
   getCache().get(origin).then(content => {
     persister.setValue(content);
-    persister.dependents.forEach(callback => callback(persister));
+    persister.notify();
   }).catch(reason => console.error(reason));
 
   return persister;

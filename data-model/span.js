@@ -1,5 +1,5 @@
 export default function Span(origin, start, length) {
-  return {
+  const obj = {
     leafType: "span",
     isPointer: true,
     isContent: true,
@@ -11,6 +11,8 @@ export default function Span(origin, start, length) {
     denotesSame: other => obj.sameOrigin(other) && other.start === obj.start && other.length === obj.length,
     overlaps: other => obj.sameOrigin(other) && overlapping(obj, other)
   };
+
+  return obj;
 }
 
 function overlapping(s1, s2) {
