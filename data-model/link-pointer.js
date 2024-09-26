@@ -1,9 +1,12 @@
 export default function LinkPointer(origin) {
-  return {
+  const obj = {
     leafType: "link pointer",
     isPointer: true,
     origin,
     denotesSame: other => other.leafType === obj.leafType && other.origin === obj.origin,
-    overlaps: other => obj.denotesSame(other)
+    overlaps: other => obj.denotesSame(other),
+    hashableValue: `edl:${origin}`
   };
+
+  return Object.freeze(obj);
 };
