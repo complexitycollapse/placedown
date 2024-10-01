@@ -1,3 +1,4 @@
+import { ListMap } from "../../../common/utils";
 import makeObservable from "../observable";
 
 export default function Interlinker(key, pointer, persister) {
@@ -6,6 +7,7 @@ export default function Interlinker(key, pointer, persister) {
     pointer,
     incoming: [],
     outgoing: [],
+    dependencies: new ListMap(),
     persister
   };
 
