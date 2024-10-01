@@ -56,3 +56,13 @@ export function ListMap() {
     removeItem
   });
 }
+
+export function getOrSet(map, key, valueFn) {
+  if (map.has(key)) {
+    return map.get(key);
+  } else {
+    const value = valueFn();
+    map.set(key, value);
+    return value;
+  }
+}
