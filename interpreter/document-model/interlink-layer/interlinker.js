@@ -7,6 +7,7 @@ export default function Interlinker(key, pointer, persister) {
     pointer,
     incoming: [],
     outgoing: [],
+    type: undefined,
     dependencies: new ListMap(),
     persister
   };
