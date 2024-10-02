@@ -24,10 +24,7 @@ export function removeItem(array, item) {
 }
 
 export function ListMap() {
-  let obj = {};
   let table = new Map();
-
-  addProperties(obj, { table });
 
   function push(key, value) {
     if (table.has(key)) {
@@ -46,7 +43,8 @@ export function ListMap() {
     removeItem(list, item);
   }
 
-  return finalObject(obj, {
+  return {
+    table,
     push,
     get: key => table.get(key) ?? [],
     has: key => table.has(key),
@@ -54,7 +52,7 @@ export function ListMap() {
     values: () => table.values(),
     remove,
     removeItem
-  });
+  };
 }
 
 export function getOrSet(map, key, valueFn) {
