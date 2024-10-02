@@ -13,13 +13,13 @@ export default function TabsComponent() {
     <StrictMode>
       <DocModelContext.Provider value={model}>
         <div className="button-bar">
-        <input type="button" value="Interlink" onClick={() => openTab('interlink-tab')}></input>
+        <input type="button" value="Meshpoint" onClick={() => openTab('mesh-tab')}></input>
         <input type="button" value="Persistence" onClick={() => openTab('persistence-tab')}></input>
         <input type="button" value="Cache" onClick={() => openTab('cache-tab')}></input>
         </div>
-        <div id="interlink-tab" className="tab">
-          <h1>Interlink Layer</h1>
-          <LayerTreeComponent layer={model.interlinkLayer} elementToNode={interlinkerToNode}/>
+        <div id="mesh-tab" className="tab">
+          <h1>Mesh Layer</h1>
+          <LayerTreeComponent layer={model.meshLayer} elementToNode={meshpointToNode}/>
         </div>
         <div id="persistence-tab" className="tab hidden">
           <h1>Persistence Layer</h1>
@@ -33,7 +33,7 @@ export default function TabsComponent() {
   );
 }
 
-function interlinkerToNode(element) {
+function meshpointToNode(element) {
   return {
     label: JSON.stringify(element.pointer) + " (" + element.key + ")",
     children: [
@@ -47,14 +47,14 @@ function interlinkerToNode(element) {
 }
 
 function connectorToNode(connector) {
-  const ilink = connector.targetInterlinker;
+  const meshpoint = connector.targetMeshpoint;
   return {
     label: JSON.stringify(connector.linkPersister.origin),
     children: [
       { label: "persister", value: persisterToNode(connector.linkPersister) },
       { label: "endIndex", value: connector.endIndex },
       { label: "pointerIndex", value: connector.pointerIndex },
-      { label: "target interlinker", value: ilink ? (JSON.stringify(ilink.pointer) + " (" + ilink.key + ")") : "unloaded" }
+      { label: "target meshpoint", value: meshpoint ? (JSON.stringify(meshpoint.pointer) + " (" + meshpoint.key + ")") : "unloaded" }
     ]};
 }
 

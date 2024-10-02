@@ -9,31 +9,31 @@ export default function TypeModule(workManager) {
   const obj = {
     types: new Map(),
     requiredMetalinks: new ListMap(),
-    onContentLoaded: ilink => {
-      if (ilink.persister.type === "link" || ilink.persister.type === "edl") {
-        const value = ilink.persister.value;
+    onContentLoaded: meshpoint => {
+      if (meshpoint.persister.type === "link" || meshpoint.persister.type === "edl") {
+        const value = meshpoint.persister.value;
         const rawType = value.type;
 
         if (rawType === undefined || rawType === null) {
           // Type is blank.
-          ilink.type = undefinedType;
-          workManager.notifyMeshpointReady(ilink);
+          meshpoint.type = undefinedType;
+          workManager.notifyMeshpointReady(meshpoint);
 
         } else if (typeof rawType === "string") {
           // Type is a string.
-          ilink.type = getOrSet(obj.types, "string:" + rawType, () => Type(rawType));
+          meshpoint.type = getOrSet(obj.types, "string:" + rawType, () => Type(rawType));
 
           // Is the string "type"? Then this link is a type.
-          if (ilink.persister.type === "link" && ilink.type == typeType) { installNewComplexType(ilink); }
+          if (meshpoint.persister.type === "link" && meshpoint.type == typeType) { installNewComplexType(meshpoint); }
           else { 
-            workManager.notifyMeshpointReady(ilink);
+            workManager.notifyMeshpointReady(meshpoint);
           
             // Is the link a metalink?
             const metalinkDepdenencies = obj.requiredMetalinks(rawType.hashableName);
             obj.requiredMetalinks.remove(rawType.hashableName);
             metalinkDepdenencies.forEach(dependentType => {
               dependentType.requiredMetalinks.remove(rawType.hashableName);
-              dependentType.metalinks.push(ilink);
+              dependentType.metalinks.push(meshpoint);
               checkIfTypeIsComplete(dependentType);
             });
           }
@@ -45,31 +45,31 @@ export default function TypeModule(workManager) {
           });
 
           workManager.requestLoad(rawType);
-          ilink.type = type;
-          type.instances.push(ilink);
+          meshpoint.type = type;
+          type.instances.push(meshpoint);
           checkIfTypeIsComplete(type);
         } 
       }
     }
   };
 
-  function installNewComplexType(ilink) {
-    const type = obj.types.get(ilink.pointer.hashableName);
+  function installNewComplexType(meshpoint) {
+    const type = obj.types.get(meshpoint.pointer.hashableName);
 
     // If the type's meshpoint was already set previously then no need to do it again.
-    if (type?.ilink) {
+    if (type?.meshpoint) {
       return;
     }
 
     if (!type) {
-      type = Type(ilink.pointer, ilink);
-      obj.types.set(ilink.pointer.hashableName, type);
+      type = Type(meshpoint.pointer, meshpoint);
+      obj.types.set(meshpoint.pointer.hashableName, type);
     } else {
-      type.interlinker = ilink;
+      type.meshpoint = meshpoint;
     }
 
     // Request download of all the metalinks, recording that this type depends on them.
-    ilink.perister.value.ends.filter(e => e.name === "metalink").forEach(end => {
+    meshpoint.perister.value.ends.filter(e => e.name === "metalink").forEach(end => {
       end.pointer.filter(p => p.leafType === "link pointer").forEach(metalinkPointer => {
         newType.requiredMetalinks.add(metalinkPointer);
         obj.requiredMetalinks.push(metalinkPointer, type);
@@ -82,7 +82,7 @@ export default function TypeModule(workManager) {
 
   function checkIfTypeIsComplete(type) {
     if (type.state() === "resolved") {
-      workManager.notifyMeshpointReady(type.interlinker);
+      workManager.notifyMeshpointReady(type.meshpoint);
       const instances = type.instances;
       type.instances = undefined;
       instances.forEach(instance => workManager.notifyMeshpointReady(instance));

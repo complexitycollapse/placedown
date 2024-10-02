@@ -1,13 +1,13 @@
-export default function Type(value, interlinker) {
+export default function Type(value, meshpoint) {
   const obj = {
     value,
-    interlinker,
+    meshpoint,
     instances: [],
     metalinks: [],
     requiredMetalinks: new Set(),
     state: () => {
       if (obj.value.leafType === "link pointer") {
-        if (!obj.interlinker || !obj.interlinker.value) {
+        if (!obj.meshpoint || !obj.meshpoint.value) {
           return "unresolved";
         } else if (requiredMetalinks.length > 0) {
           return "awaiting metalinks";

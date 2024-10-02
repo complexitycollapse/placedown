@@ -1,8 +1,8 @@
 import Layer from "../layer";
 import Connector from "./connector";
-import Interlinker from "./interlinker";
+import Meshpoint from "./meshpoint";
 
-export default function InterlinkLayer(persistenceLayer) {
+export default function MeshLayer(persistenceLayer) {
   const obj = Layer()
   
   Object.assign(obj, {
@@ -12,10 +12,10 @@ export default function InterlinkLayer(persistenceLayer) {
       const persister = persistenceLayer.load(pointer, onContentLoaded);
       const key = obj.assignId();
 
-      const interlinker = Interlinker(key, pointer, persister);
-      obj.elements.push(interlinker);
+      const meshpoint = Meshpoint(key, pointer, persister);
+      obj.elements.push(meshpoint);
       obj.notify();
-      return interlinker;
+      return meshpoint;
     },
     findByPointer: pointer => obj.elements.filter(e => pointer.overlaps(e.pointer)),
     findOrLoad: pointer => {
@@ -27,7 +27,7 @@ export default function InterlinkLayer(persistenceLayer) {
   function onContentLoaded(persister) {
     // TODO This only checks in one direction. What if the link loaded before the content?
 
-    const affectedElements = obj.elements.filter(ilink => persister.contains(ilink.pointer));
+    const affectedElements = obj.elements.filter(meshpoint => persister.contains(meshpoint.pointer));
     const changedElements = new Map();
     const newConnectors = [];
 
@@ -47,7 +47,7 @@ export default function InterlinkLayer(persistenceLayer) {
 
     // Attach the incoming connectors to their targets
     newConnectors.forEach(connector => {
-      const target = connector.targetInterlinker;
+      const target = connector.targetMeshpoint;
       if (target) {
         target.incoming.push(connector);
         changedElements.set(target.key, target);

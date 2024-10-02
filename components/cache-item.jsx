@@ -25,7 +25,7 @@ export default function CacheItem({ node }) {
       pointer = Span(name, 0, 1);
     }
 
-    model.interlinkLayer.load(pointer);
+    model.meshLayer.load(pointer);
   }
 
   return (
