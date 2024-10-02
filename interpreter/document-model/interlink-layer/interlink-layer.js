@@ -17,7 +17,11 @@ export default function InterlinkLayer(persistenceLayer) {
       obj.notify();
       return interlinker;
     },
-    findByPointer: pointer => obj.elements.filter(e => pointer.overlaps(e.pointer))
+    findByPointer: pointer => obj.elements.filter(e => pointer.overlaps(e.pointer)),
+    findOrLoad: pointer => {
+      const loaded = findByPointer(pointer);
+      return loaded.length === 0 ? [load(pointer)] : loaded;
+    }
   });
 
   function onContentLoaded(persister) {

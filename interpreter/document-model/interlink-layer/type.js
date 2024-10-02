@@ -1,20 +1,22 @@
 export default function Type(value, interlinker) {
   const obj = {
-    key: interlinker.key,
     value,
     interlinker,
     instances: [],
     metalinks: [],
+    requiredMetalinks: new Set(),
     state: () => {
-      if (!obj.interlinker) {
-        return "resolved";
-      } else if (obj.interlinker.dependencies.has("type")) {
-        return "unresolved";
-      } else if (obj.interlinker.dependencies.has("metalinks")) {
-        return "awaiting metalinks";
-      } else {
-        return "resolved";
+      if (obj.value.leafType === "link pointer") {
+        if (!obj.interlinker || !obj.interlinker.value) {
+          return "unresolved";
+        } else if (requiredMetalinks.length > 0) {
+          return "awaiting metalinks";
+        } else {
+          return "resolved";
+        }
       }
+      
+      return "resolved";
     }
   };
 
