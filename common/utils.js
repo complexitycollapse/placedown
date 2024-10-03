@@ -35,7 +35,7 @@ export function ListMap() {
   }
 
   function remove(key) {
-    table.remove(key);
+    table.delete(key);
   }
 
   function removeItem(key, item) {
