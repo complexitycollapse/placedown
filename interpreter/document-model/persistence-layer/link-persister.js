@@ -14,7 +14,7 @@ export default function LinkPersister(key, initialPointer) {
 function deserialize(linkString) {
   const json = JSON.parse(linkString);
 
-  return Link(json.type, json.ends.map(e => ({name: e.name, pointers: e.pointers.map(deserializePointer)})));
+  return Link(deserializeType(json.type), json.ends.map(e => ({name: e.name, pointers: e.pointers.map(deserializePointer)})));
 }
 
 function deserializePointer(pointer) {
@@ -27,4 +27,8 @@ function deserializePointer(pointer) {
   } else {
     throw new Error("Could not deserialize pointer: " + JSON.stringify(pointer));
   }
+}
+
+function deserializeType(type) {
+  return type?.leafType ? deserializePointer(type) : type;
 }

@@ -13,7 +13,7 @@ export default function TabsComponent() {
     <StrictMode>
       <DocModelContext.Provider value={model}>
         <div className="button-bar">
-        <input type="button" value="Meshpoint" onClick={() => openTab('mesh-tab')}></input>
+        <input type="button" value="Mesh" onClick={() => openTab('mesh-tab')}></input>
         <input type="button" value="Persistence" onClick={() => openTab('persistence-tab')}></input>
         <input type="button" value="Cache" onClick={() => openTab('cache-tab')}></input>
         </div>
@@ -35,14 +35,32 @@ export default function TabsComponent() {
 
 function meshpointToNode(element) {
   return {
-    label: JSON.stringify(element.pointer) + " (" + element.key + ")",
+    label: "meshpoint",
+    value: JSON.stringify(element.pointer) + " (" + element.key + ")",
     children: [
       { label: "pointer", value: JSON.stringify(element.pointer) },
+      typeToNode(element.type),
       { label: "persister", value: element.persister.type + " | " + element.persister.origin + " (" + element.persister.key + ")" },
       { label: "incoming", value: " (count: " + element.incoming.length + ")", children: element.incoming.map(connectorToNode)},
       { label: "outgoing", value: " (count: " + element.outgoing.length + ")", children: element.outgoing.map(connectorToNode)}
     ],
     element
+  };
+}
+
+function typeToNode(type) {
+  if (type === undefined) {
+    return { label: "undefined" }
+  }
+
+  return {
+    label: "type", 
+    value: JSON.stringify(type.value),
+    children: [
+      { label: "state", value: type.state() },
+      type.meshpoint ? meshpointToNode(type.meshpoint) : { label: "meshpoint", value: "none" },
+      { label: "metalinks", children: type.metalinks.map(meshpointToNode) }
+    ]
   };
 }
 

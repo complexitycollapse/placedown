@@ -6,10 +6,10 @@ export default function Type(value, meshpoint) {
     metalinks: [],
     requiredMetalinks: new Set(),
     state: () => {
-      if (obj.value.leafType === "link pointer") {
-        if (!obj.meshpoint || !obj.meshpoint.value) {
+      if (obj.value?.leafType === "link pointer") {
+        if (!obj.meshpoint?.persister?.value) {
           return "unresolved";
-        } else if (requiredMetalinks.length > 0) {
+        } else if (obj.requiredMetalinks.length > 0) {
           return "awaiting metalinks";
         } else {
           return "resolved";

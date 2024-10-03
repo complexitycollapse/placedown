@@ -1,13 +1,18 @@
 import Layer from "../layer";
 import Connector from "./connector";
+import WorkManager from "./work-manager";
 import Meshpoint from "./meshpoint";
+import TypeModule from "./type-module";
 
 export default function MeshLayer(persistenceLayer) {
-  const obj = Layer()
+  const obj = Layer();
+  const workManager = WorkManager();
   
   Object.assign(obj, {
     elements: [],
     connectors: [],
+    typeModule: TypeModule(workManager),
+    workManager,
     load: pointer => {
       const persister = persistenceLayer.load(pointer, onContentLoaded);
       const key = obj.assignId();
@@ -19,29 +24,32 @@ export default function MeshLayer(persistenceLayer) {
     },
     findByPointer: pointer => obj.elements.filter(e => pointer.overlaps(e.pointer)),
     findOrLoad: pointer => {
-      const loaded = findByPointer(pointer);
-      return loaded.length === 0 ? [load(pointer)] : loaded;
+      if (!pointer) { throw new Error("Argument error: cannot pass null pointer"); }
+      const loaded = obj.findByPointer(pointer);
+      return loaded.length === 0 ? [obj.load(pointer)] : loaded;
     }
   });
 
   function onContentLoaded(persister) {
     // TODO This only checks in one direction. What if the link loaded before the content?
 
-    const affectedElements = obj.elements.filter(meshpoint => persister.contains(meshpoint.pointer));
-    const changedElements = new Map();
+    const affectedMeshpoints = obj.elements.filter(meshpoint => persister.contains(meshpoint.pointer));
+    const changedMeshpoints = new Map();
     const newConnectors = [];
 
-    affectedElements.forEach(e => {
-      if (e.persister.type === "content") {
+    affectedMeshpoints.forEach(meshpoint => obj.typeModule.onContentLoaded(meshpoint));
+
+    affectedMeshpoints.forEach(meshpoint => {
+      if (meshpoint.persister.type === "content") {
         return;
       }
 
-      if (e.persister.type === "link") {
-      // Create the outgoing connectors and attach them to the link
-      const requiredConnectors = generateConnectors(obj, persister);
-        e.outgoing.push(...requiredConnectors);
-        newConnectors.push(...requiredConnectors);
-        changedElements.set(e.key, e);
+      if (meshpoint.persister.type === "link") {
+        // Create the outgoing connectors and attach them to the link
+        const requiredConnectors = generateConnectors(obj, persister);
+          meshpoint.outgoing.push(...requiredConnectors);
+          newConnectors.push(...requiredConnectors);
+          changedMeshpoints.set(meshpoint.key, meshpoint);
       }
     });
 
@@ -50,12 +58,15 @@ export default function MeshLayer(persistenceLayer) {
       const target = connector.targetMeshpoint;
       if (target) {
         target.incoming.push(connector);
-        changedElements.set(target.key, target);
+        changedMeshpoints.set(target.key, target);
       }
     });
 
+    obj.workManager.retrieveLoads().forEach(pointer => obj.findOrLoad(pointer));
+    // TODO: signal meshpoints ready
+
     // Raise all update events
-    for (const e of changedElements.values()) {e.notify(); }
+    for (const e of changedMeshpoints.values()) {e.notify(); }
   }
 
   return obj;

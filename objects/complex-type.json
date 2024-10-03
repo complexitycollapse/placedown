@@ -1,5 +1,5 @@
 {
-  "type": { "leafType": "link pointer", "origin": "complex-type.json" },
+  "type": "type",
   "ends": [
     {
       "name": "first",
