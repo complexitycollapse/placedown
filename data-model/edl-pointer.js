@@ -5,7 +5,7 @@ export default function EdlPointer(origin) {
     origin,
     denotesSame: other => other.leafType === obj.leafType && other.origin === obj.origin,
     overlaps: other => obj.denotesSame(other),
-    hashableValue: `edl:${origin}`
+    hashableName: `edl:${origin}`
   };
 
   return Object.freeze(obj);

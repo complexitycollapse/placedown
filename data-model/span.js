@@ -10,7 +10,7 @@ export default function Span(origin, start, length) {
     sameOrigin: other => other.leafType === obj.leafType && other.origin === obj.origin,
     denotesSame: other => obj.sameOrigin(other) && other.start === obj.start && other.length === obj.length,
     overlaps: other => obj.sameOrigin(other) && overlapping(obj, other),
-    hashableValue: `span:${origin}:${start}:${length}`
+    hashableName: `span:${origin}:${start}:${length}`
   };
 
   return obj;
