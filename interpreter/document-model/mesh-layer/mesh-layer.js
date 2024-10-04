@@ -4,7 +4,7 @@ import WorkManager from "./work-manager";
 import Meshpoint from "./meshpoint";
 import TypeModule from "./type-module";
 
-export default function MeshLayer(persistenceLayer) {
+export default function MeshLayer(persistenceLayer, semanticLayer) {
   const obj = Layer();
   const workManager = WorkManager();
   
@@ -63,7 +63,8 @@ export default function MeshLayer(persistenceLayer) {
     });
 
     obj.workManager.retrieveLoads().forEach(pointer => obj.findOrLoad(pointer));
-    // TODO: signal meshpoints ready
+    const readyMeshpoints = obj.workManager.retrieveReadyMeshpoints();
+    semanticLayer.onMeshpointsReady(readyMeshpoints);
 
     // Raise all update events
     for (const e of changedMeshpoints.values()) {e.notify(); }

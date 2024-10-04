@@ -10,7 +10,12 @@ export default function WorkManager() {
       obj.newLoads.clear();
       return loads;
     },
-    meshpointTypeReady: meshpoint => obj.readyMeshpoints.add(meshpoint)
+    meshpointTypeReady: meshpoint => obj.readyMeshpoints.add(meshpoint),
+    retrieveReadyMeshpoints() {
+      const meshpoints = Array.from(obj.readyMeshpoints);
+      obj.readyMeshpoints.clear();
+      return meshpoints;
+    }
   };
 
   return obj;
