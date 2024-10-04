@@ -2,7 +2,7 @@ import { StrictMode, useState } from 'react'
 import CacheListComponent from './cache-list-component';
 import { openTab } from '../window/window';
 import DocumentModel from '../interpreter/document-model/document-model';
-import LayerTreeComponent from './layer-tree-component';
+import { LayerTreeComponent } from './layer-tree-component';
 import { DocModelContext } from './contexts';
 
 export default function TabsComponent() {
@@ -13,11 +13,16 @@ export default function TabsComponent() {
     <StrictMode>
       <DocModelContext.Provider value={model}>
         <div className="button-bar">
+        <input type="button" value="Semantics" onClick={() => openTab('semantics-tab')}></input>
         <input type="button" value="Mesh" onClick={() => openTab('mesh-tab')}></input>
         <input type="button" value="Persistence" onClick={() => openTab('persistence-tab')}></input>
         <input type="button" value="Cache" onClick={() => openTab('cache-tab')}></input>
         </div>
-        <div id="mesh-tab" className="tab">
+        <div id="semantics-tab" className="tab">
+          <h1>Semantic Layer</h1>
+          <LayerTreeComponent layer={model.semanticLayer} elementToNode={semanticsToNode}/>
+        </div>
+        <div id="mesh-tab" className="tab hidden">
           <h1>Mesh Layer</h1>
           <LayerTreeComponent layer={model.meshLayer} elementToNode={meshpointToNode}/>
         </div>
@@ -33,59 +38,108 @@ export default function TabsComponent() {
   );
 }
 
-function meshpointToNode(element) {
+function semanticsToNode(element) {
   return {
-    label: "meshpoint",
-    value: JSON.stringify(element.pointer) + " (" + element.key + ")",
-    children: [
-      { label: "pointer", value: JSON.stringify(element.pointer) },
-      typeToNode(element.type),
-      { label: "persister", value: element.persister.type + " | " + element.persister.origin + " (" + element.persister.key + ")" },
-      { label: "incoming", value: " (count: " + element.incoming.length + ")", children: element.incoming.map(connectorToNode)},
-      { label: "outgoing", value: " (count: " + element.outgoing.length + ")", children: element.outgoing.map(connectorToNode)}
-    ],
-    element
+    key: element.meshpoint.key,
+    element,
+    formatter: node => ({
+      label: "node",
+      value: node.meshpoint.key,
+      children: [
+        meshpointToNode(node.meshpoint)
+    ]})
+  };
+}
+
+function meshpointToNode(element) {
+  function connectionListFormatter(label) {
+    return connections => ({ label, value: " (" + connections[label].length + ")", children: connections[label].map(connectorToNode)});
+  }
+
+  if (!element) {
+    return { key: "missing meshpoint", element: {}, formatter: () => ({ label: "meshpoint", value: "none"}) };
+  }
+
+  return {
+    key: element.key,
+    element,
+    formatter: meshpoint => ({
+      label: "meshpoint",
+      value: JSON.stringify(meshpoint.pointer) + " (" + meshpoint.key + ")",
+      children: [
+        property(meshpoint, "pointer", JSON.stringify),
+        typeToNode(meshpoint.type),
+        property(meshpoint, "persister", p => p.type + " | " + p.origin + " (" + p.key +")"),
+        { key: "incoming", element: meshpoint, formatter: connectionListFormatter("incoming")},
+        { key: "outgoing", element: meshpoint, formatter: connectionListFormatter("outgoing")}
+      ]
+    })
   };
 }
 
 function typeToNode(type) {
   if (type === undefined) {
-    return { label: "undefined" }
+   return { key: "type", element: {}, formatter: () => ({ label: "type", value: "unloaded"}) };
   }
 
   return {
-    label: "type", 
-    value: JSON.stringify(type.value),
-    children: [
-      { label: "state", value: type.state() },
-      type.meshpoint ? meshpointToNode(type.meshpoint) : { label: "meshpoint", value: "none" },
-      { label: "metalinks", children: type.metalinks.map(meshpointToNode) }
-    ]
+    key: "type",
+    element: type,
+    formatter: type => ({
+      label: "type",
+      value: JSON.stringify(type.value),
+      children: [
+        property(type, "state", f => f()),
+        meshpointToNode(type.meshpoint),
+        { 
+          key: "metalinks", element: type.metalinks, formatter: children => ({
+            label: "metalinks",
+            value: "(" + children.length + ")",
+            children: children.map(meshpointToNode)
+          })
+        }
+      ]
+    })
   };
 }
 
 function connectorToNode(connector) {
-  const meshpoint = connector.targetMeshpoint;
   return {
-    label: JSON.stringify(connector.linkPersister.origin),
-    children: [
-      { label: "persister", value: persisterToNode(connector.linkPersister) },
-      { label: "endIndex", value: connector.endIndex },
-      { label: "pointerIndex", value: connector.pointerIndex },
-      { label: "target meshpoint", value: meshpoint ? (JSON.stringify(meshpoint.pointer) + " (" + meshpoint.key + ")") : "unloaded" }
-    ]};
+    key: connector.linkPersister.origin,
+    element: connector,
+    formatter: connector => ({
+      label: connector.linkPersister.origin,
+      children: [
+        //property(connector, "persister", () => connector.linkPersister.origin),
+        property(connector, "endIndex"),
+        property(connector, "pointerIndex"),
+        //meshpointToNode(connector.meshpoint)
+      ]
+    })
+  }
 }
 
 function persisterToNode(persister) {
   return {
-    label: persister.type + " | " + persister.origin + " (" + persister.key + ")",
-    children: [
-      { label: "origin", value: persister.origin },
-      { label: "type", value: persister.type },
-      { label: "state", value: persister.state },
-      { label: "value", value: serializeValue(persister.type, persister.value) }
-    ],
-    persister
+    key: persister.key,
+    element: persister,
+    formatter: persister => ({
+      label: persister.type + " | " + persister.origin + " (" + persister.key + ")",
+      children: [
+        property(persister, "origin"),
+        property(persister, "type"),
+        property(persister, "state"),
+        property(persister, "value", v => serializeValue(persister.type, v))
+      ]
+    })
+  };
+}
+
+function property(obj, prop, formatter = v => v) {
+  return {
+    key: prop,
+    element: obj[prop],
+    formatter: v => ({ label: prop, value: formatter(v) })
   };
 }
 

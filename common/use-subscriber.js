@@ -16,8 +16,12 @@ export function createSubscriber(subscribeFn, unsubscribeFn, getSnapshot) {
         callback();
       }
 
-      subscribeFn(wrappedCallback);
-      return () => unsubscribeFn(wrappedCallback);
+      if (subscribeFn) {
+        subscribeFn(wrappedCallback);
+        return () => unsubscribeFn(wrappedCallback);
+      }
+      
+      return () => () => undefined;
     },
     getSnapshot: () => snapshot
   };

@@ -1,3 +1,5 @@
+import makeObservable from "../observable";
+
 export default function Type(value, meshpoint) {
   const obj = {
     value,
@@ -19,6 +21,8 @@ export default function Type(value, meshpoint) {
       return "resolved";
     }
   };
+
+  makeObservable(obj);
 
   return obj;
 }

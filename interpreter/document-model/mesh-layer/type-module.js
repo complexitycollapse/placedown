@@ -57,10 +57,12 @@ export default function TypeModule(workManager) {
       type.instances.push(meshpoint);
       checkIfTypeIsComplete(type);
     }
+
+    meshpoint.notify();
   }
 
   function installNewComplexType(meshpoint) {
-    const type = obj.types.get(meshpoint.pointer.hashableName);
+    let type = obj.types.get(meshpoint.pointer.hashableName);
 
     // If the type's meshpoint was already set previously then no need to do it again.
     if (type?.meshpoint) {
