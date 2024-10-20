@@ -10,7 +10,7 @@ export default function TypeModule(workManager) {
     types: new Map(),
     requiredMetalinks: new ListMap(),
     onContentLoaded: meshpoint => {
-      if (meshpoint.persister.type === "link" || meshpoint.persister.type === "edl") {
+      if (meshpoint.leafType === "link" || meshpoint.leafType === "edl") {
         processTypeOfLinkOrEdl(meshpoint);
       } else {
         workManager.meshpointTypeReady(meshpoint);
@@ -32,7 +32,7 @@ export default function TypeModule(workManager) {
       meshpoint.type = getOrSet(obj.types, "string:" + rawType, () => Type(rawType));
 
       // Is the string "type"? Then this link is a type.
-      if (meshpoint.persister.type === "link" && meshpoint.type == typeType) { installNewComplexType(meshpoint); }
+      if (meshpoint.leafType === "link" && meshpoint.type == typeType) { installNewComplexType(meshpoint); }
       else { 
         workManager.meshpointTypeReady(meshpoint);
       

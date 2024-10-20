@@ -5,6 +5,7 @@ export default function Meshpoint(key, pointer, persister) {
   const obj = {
     key,
     pointer,
+    leafType: persister.type,
     incoming: [],
     outgoing: [],
     type: undefined,

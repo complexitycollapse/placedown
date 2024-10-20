@@ -40,11 +40,11 @@ export default function MeshLayer(persistenceLayer, semanticLayer) {
     affectedMeshpoints.forEach(meshpoint => obj.typeModule.onContentLoaded(meshpoint));
 
     affectedMeshpoints.forEach(meshpoint => {
-      if (meshpoint.persister.type === "content") {
+      if (meshpoint.leafType === "content") {
         return;
       }
 
-      if (meshpoint.persister.type === "link") {
+      if (meshpoint.leafType === "link") {
         // Create the outgoing connectors and attach them to the link
         const requiredConnectors = generateConnectors(obj, persister);
           meshpoint.outgoing.push(...requiredConnectors);
