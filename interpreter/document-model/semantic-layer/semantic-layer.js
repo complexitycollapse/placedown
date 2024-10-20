@@ -10,6 +10,7 @@ export default function SemanticLayer() {
     elements: [],
     classes: new Map(),
     attributes: new Map(),
+    semanticTypes: new Map(),
     onMeshpointsReady: meshpoints => {
       meshpoints.forEach(createNode);
       obj.notify();
@@ -19,6 +20,10 @@ export default function SemanticLayer() {
   function createNode(meshpoint) {
     const node = SemanticNode(meshpoint);
     obj.elements.push(node);
+
+    if (meshpoint.type) {
+      getOrSet(obj.semanticTypes, meshpoint.type.key, () => SemanticType(meshpoint.type));
+    }
 
     if (!node.leafType === "link") {
       return;
@@ -47,6 +52,14 @@ function Attribute(node) {
 function Class(node) {
   let obj = {
     node
+  };
+
+  return obj;
+}
+
+function SemanticType(meshType) {
+  let obj = {
+    meshType
   };
 
   return obj;

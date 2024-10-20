@@ -3,6 +3,7 @@ import makeObservable from "../observable";
 export default function Type(value, meshpoint) {
   const obj = {
     value,
+    key: meshpoint.key,
     meshpoint,
     instances: [],
     metalinks: [],

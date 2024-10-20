@@ -67,7 +67,7 @@ export default function MeshLayer(persistenceLayer, semanticLayer) {
     semanticLayer.onMeshpointsReady(readyMeshpoints);
 
     // Raise all update events
-    for (const e of changedMeshpoints.values()) {e.notify(); }
+    for (const e of changedMeshpoints.values()) { e.notify(); }
   }
 
   return obj;
