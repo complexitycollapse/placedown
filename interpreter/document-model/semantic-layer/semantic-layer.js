@@ -1,6 +1,6 @@
 import Layer from "../layer";
 import SemanticNode from "./semantic-node";
-import { attributeType, classType } from "../object-constants";
+import { attributeTypePointer, classTypePointer } from "../object-constants";
 import { getOrSet } from "../../../common/utils";
 
 export default function SemanticLayer() {
@@ -18,48 +18,60 @@ export default function SemanticLayer() {
   });
 
   function createNode(meshpoint) {
-    const node = SemanticNode(meshpoint);
+    const semanticType = getOrSet(obj.semanticTypes, meshpoint.type.key, () => {
+      var classesForType = [];
+      meshpoint.type.metalinks.forEach(metaMesh => {
+        if (isClass(metaMesh)) {
+          classesForType.push(getOrSet(obj.classes, metaMesh.key, () => Class(metaMesh)));
+        }
+      });
+      return SemanticType(meshpoint.type, classesForType);
+    });
+
+    const node = SemanticNode(meshpoint, semanticType);
     obj.elements.push(node);
 
-    if (meshpoint.type) {
-      getOrSet(obj.semanticTypes, meshpoint.type.key, () => SemanticType(meshpoint.type));
+    if (isAttribute(meshpoint)) {
+      getOrSet(obj.attributes, meshpoint.key, () => Attribute(meshpoint));
     }
 
-    if (!node.leafType === "link") {
-      return;
-    }
-
-    if (attributeType.denotesSame(node.type)) {
-      getOrSet(obj.attributes, node.key, () => Attribute(node));
-    }
-
-    if (classType.denotesSame(node.type)) {
-      getOrSet(obj.classes, node.key, () => Class(node));
+    if (isClass(meshpoint))  {
+      getOrSet(obj.classes, meshpoint.key, () => Class(meshpoint));
     }
   }
 
   return obj;
 }
 
-function Attribute(node) {
+function isClass(meshpoint) {
+  return meshpoint.leafType === "link" && meshpoint.type.matchesTypeValue(classTypePointer);
+}
+
+function isAttribute(meshpoint) {
+  return meshpoint.leafType === "link" && meshpoint.type.matchesTypeValue(attributeTypePointer);
+}
+
+function Attribute(meshpoint) {
   let obj = {
-    node
+    meshpoint
   };
 
   return obj;
 }
 
-function Class(node) {
+function Class(meshpoint) {
   let obj = {
-    node
+    get name() { return meshpoint.persister.parameterValue("name"); },
+    meshpoint
   };
 
   return obj;
 }
 
-function SemanticType(meshType) {
+function SemanticType(meshType, classes) {
   let obj = {
-    meshType
+    meshType,
+    classes
   };
 
   return obj;

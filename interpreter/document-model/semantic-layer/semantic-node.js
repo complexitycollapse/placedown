@@ -1,9 +1,11 @@
 import makeObservable from "../observable";
 
-export default function SemanticNode(meshpoint) {
+export default function SemanticNode(meshpoint, semanticType) {
   const obj = {
     key: meshpoint.key,
-    meshpoint
+    meshpoint,
+    semanticType,
+    classes: () => semanticType.classes
   };
 
   makeObservable(obj);

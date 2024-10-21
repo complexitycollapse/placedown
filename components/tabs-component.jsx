@@ -46,8 +46,47 @@ function semanticsToNode(element) {
       label: "node",
       value: node.meshpoint.key,
       children: [
-        meshpointToNode(node.meshpoint)
+        meshpointToNode(node.meshpoint),
+        semanticTypeToNode(node.semanticType)
     ]})
+  };
+}
+
+function semanticTypeToNode(type) {
+  return {
+    key: "type",
+    element: type,
+    formatter: () => ({
+      label: "semantic type",
+      children: [
+        meshTypeToNode(type.meshType),
+        classesToNode(type.classes, type)
+      ]
+    })
+  };
+}
+
+function classesToNode(classArray, element) {
+  function classFormatter() {
+    return  {
+      label: "classes",
+      value: "(" + classArray.length + ")",
+      children: classArray.map(klass => ({
+        
+        key: klass.name,
+        element: klass,
+        formatter: () => ({
+          label: klass.name,
+          children: []
+        })
+      }))
+    };
+  }
+
+  return {
+    key: "classes",
+    element,
+    formatter: classFormatter
   };
 }
 
@@ -68,7 +107,7 @@ function meshpointToNode(element) {
       value: JSON.stringify(meshpoint.pointer) + " (" + meshpoint.key + ")",
       children: [
         property(meshpoint, "pointer", JSON.stringify),
-        typeToNode(meshpoint.type),
+        meshTypeToNode(meshpoint.type),
         property(meshpoint, "persister", p => p.type + " | " + p.origin + " (" + p.key +")"),
         { key: "incoming", element: meshpoint, formatter: connectionListFormatter("incoming")},
         { key: "outgoing", element: meshpoint, formatter: connectionListFormatter("outgoing")}
@@ -77,9 +116,9 @@ function meshpointToNode(element) {
   };
 }
 
-function typeToNode(type) {
+function meshTypeToNode(type) {
   if (type === undefined) {
-   return { key: "type", element: {}, formatter: () => ({ label: "type", value: "unloaded"}) };
+   return { key: "mesh type", element: {}, formatter: () => ({ label: "type", value: "unloaded"}) };
   }
 
   return {
@@ -97,7 +136,8 @@ function typeToNode(type) {
             value: "(" + children.length + ")",
             children: children.map(meshpointToNode)
           })
-        }
+        },
+        property(type, "requiredMetalinks", m => JSON.stringify(Array.from(m)))
       ]
     })
   };

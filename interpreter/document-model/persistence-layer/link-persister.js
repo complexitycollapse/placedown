@@ -8,8 +8,8 @@ export default function LinkPersister(key, initialPointer) {
   obj.firstEnd = name => obj.value.ends.find(e => e.name === name);
   obj.parameterValue = name => {
     const end = obj.firstEnd(name);
-    if (end && end.pointer.length > 0) {
-      end.pointers[0].value;
+    if (end && end.pointers.length > 0) {
+      return end.pointers[0].value;
     }
   };
 

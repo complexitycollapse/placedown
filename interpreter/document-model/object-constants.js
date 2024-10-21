@@ -1,4 +1,4 @@
 import LinkPointer from "../../data-model/link-pointer";
 
-export const attributeType = LinkPointer("attribute-link.json");
-export const classType = LinkPointer("class-link.json");
+export const attributeTypePointer = LinkPointer("attribute-link.json");
+export const classTypePointer = LinkPointer("class-link.json");

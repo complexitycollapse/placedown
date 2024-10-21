@@ -12,6 +12,16 @@ export default function TypeModule(workManager) {
     onContentLoaded: meshpoint => {
       if (meshpoint.leafType === "link" || meshpoint.leafType === "edl") {
         processTypeOfLinkOrEdl(meshpoint);
+
+        // Is the link a metalink?
+        const hashableName = meshpoint.pointer.hashableName;
+        const metalinkDepdenencies = obj.requiredMetalinks.get(hashableName);
+        obj.requiredMetalinks.remove(hashableName);
+        metalinkDepdenencies.forEach(dependentType => {
+          dependentType.requiredMetalinks.delete(hashableName);
+          dependentType.metalinks.push(meshpoint);
+          checkIfTypeIsComplete(dependentType);
+        });
       } else {
         workManager.meshpointTypeReady(meshpoint);
       }
@@ -35,15 +45,6 @@ export default function TypeModule(workManager) {
       if (meshpoint.leafType === "link" && meshpoint.type == typeType) { installNewComplexType(meshpoint); }
       else { 
         workManager.meshpointTypeReady(meshpoint);
-      
-        // Is the link a metalink?
-        const metalinkDepdenencies = obj.requiredMetalinks.get(rawType.hashableName);
-        obj.requiredMetalinks.remove(rawType.hashableName);
-        metalinkDepdenencies.forEach(dependentType => {
-          dependentType.requiredMetalinks.remove(rawType.hashableName);
-          dependentType.metalinks.push(meshpoint);
-          checkIfTypeIsComplete(dependentType);
-        });
       }
       
     } else if (rawType.leafType === "link pointer") {
@@ -65,6 +66,8 @@ export default function TypeModule(workManager) {
     let type = obj.types.get(meshpoint.pointer.hashableName);
 
     // If the type's meshpoint was already set previously then no need to do it again.
+    // (Why would it not be set? Because we loaded a leaf with this type before the type itself was loaded,
+    // so we put a dummy type in the types collection).
     if (type?.meshpoint) {
       return;
     }
@@ -78,9 +81,9 @@ export default function TypeModule(workManager) {
 
     // Request download of all the metalinks, recording that this type depends on them.
     meshpoint.persister.value.ends.filter(e => e.name === "metalink").forEach(end => {
-      end.pointer.filter(p => p.leafType === "link pointer").forEach(metalinkPointer => {
-        newType.requiredMetalinks.add(metalinkPointer);
-        obj.requiredMetalinks.push(metalinkPointer, type);
+      end.pointers.filter(p => p.leafType === "link pointer").forEach(metalinkPointer => {
+        type.requiredMetalinks.add(metalinkPointer.hashableName);
+        obj.requiredMetalinks.push(metalinkPointer.hashableName, type);
         workManager.requestLoad(metalinkPointer);
       });
     });
@@ -91,9 +94,13 @@ export default function TypeModule(workManager) {
   function checkIfTypeIsComplete(type) {
     if (type.state() === "resolved" && type.instances) {
       workManager.meshpointTypeReady(type.meshpoint);
+      type.notify();
       const instances = type.instances;
       type.instances = undefined;
-      instances.forEach(instance => workManager.meshpointTypeReady(instance));
+      instances.forEach(instance => {
+        workManager.meshpointTypeReady(instance);
+        instance.notify();
+      });
     }
   }
 
