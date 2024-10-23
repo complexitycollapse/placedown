@@ -92,7 +92,7 @@ export default function TypeModule(workManager) {
   }
 
   function checkIfTypeIsComplete(type) {
-    if (type.state() === "resolved" && type.instances) {
+    if (type.state === "resolved" && type.instances) {
       workManager.meshpointTypeReady(type.meshpoint);
       type.notify();
       const instances = type.instances;
