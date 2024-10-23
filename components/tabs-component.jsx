@@ -2,7 +2,7 @@ import { StrictMode, useState } from 'react'
 import CacheListComponent from './cache-list-component';
 import { openTab } from '../window/window';
 import DocumentModel from '../interpreter/document-model/document-model';
-import { LayerTreeComponent } from './layer-tree-component';
+import { LayerTreeComponent, LayerTreePropertyComponent } from './layer-tree-component';
 import { DocModelContext } from './contexts';
 
 export default function TabsComponent() {
@@ -20,15 +20,15 @@ export default function TabsComponent() {
         </div>
         <div id="semantics-tab" className="tab">
           <h1>Semantic Layer</h1>
-          <LayerTreeComponent layer={model.semanticLayer} elementToNode={semanticsToNode}/>
+          <LayerTreeComponent layer={model.semanticLayer} childFormatters={semanticsLayerToNode()}/>
         </div>
         <div id="mesh-tab" className="tab hidden">
           <h1>Mesh Layer</h1>
-          <LayerTreeComponent layer={model.meshLayer} elementToNode={meshpointToNode}/>
+          <LayerTreePropertyComponent layer={model.meshLayer} elementToNode={meshpointToNode}/>
         </div>
         <div id="persistence-tab" className="tab hidden">
           <h1>Persistence Layer</h1>
-          <LayerTreeComponent layer={model.persistenceLayer} elementToNode={persisterToNode}/>
+          <LayerTreePropertyComponent layer={model.persistenceLayer} elementToNode={persisterToNode}/>
         </div>
         <div id="cache-tab" className="tab hidden">
           <CacheListComponent/>
@@ -37,6 +37,14 @@ export default function TabsComponent() {
     </StrictMode>
   );
 }
+
+function semanticsLayerToNode() {
+  return [
+    {property: "elements", formatter: semanticsToNode},
+    {property: "classes", formatter: classToNode},
+    {property: "semanticTypes", formatter: t => semanticTypeToNode(t, t.meshType.key)}
+  ];
+};
 
 function semanticsToNode(element) {
   return {
@@ -52,12 +60,12 @@ function semanticsToNode(element) {
   };
 }
 
-function semanticTypeToNode(type) {
+function semanticTypeToNode(type, label = "semantic type") {
   return {
-    key: "type",
+    key: label,
     element: type,
     formatter: () => ({
-      label: "semantic type",
+      label,
       children: [
         meshTypeToNode(type.meshType),
         classesToNode(type.classes, type)
@@ -66,20 +74,23 @@ function semanticTypeToNode(type) {
   };
 }
 
+function classToNode(klass) {
+  return ({
+    key: klass.name,
+    element: klass,
+    formatter: () => ({
+      label: klass.name,
+      children: []
+    })
+  });
+}
+
 function classesToNode(classArray, element) {
   function classFormatter() {
     return  {
       label: "classes",
       value: "(" + classArray.length + ")",
-      children: classArray.map(klass => ({
-        
-        key: klass.name,
-        element: klass,
-        formatter: () => ({
-          label: klass.name,
-          children: []
-        })
-      }))
+      children: classArray.map(classToNode)
     };
   }
 
