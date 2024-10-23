@@ -20,11 +20,11 @@ export default function TabsComponent() {
         </div>
         <div id="semantics-tab" className="tab">
           <h1>Semantic Layer</h1>
-          <LayerTreeComponent layer={model.semanticLayer} childFormatters={semanticsLayerToNode()}/>
+          <LayerTreeComponent layer={model.semanticLayer} childFormatters={semanticsLayerProperties()}/>
         </div>
         <div id="mesh-tab" className="tab hidden">
           <h1>Mesh Layer</h1>
-          <LayerTreePropertyComponent layer={model.meshLayer} elementToNode={meshpointToNode}/>
+          <LayerTreeComponent layer={model.meshLayer} childFormatters={meshLayerProperties()}/>
         </div>
         <div id="persistence-tab" className="tab hidden">
           <h1>Persistence Layer</h1>
@@ -38,7 +38,7 @@ export default function TabsComponent() {
   );
 }
 
-function semanticsLayerToNode() {
+function semanticsLayerProperties() {
   return [
     {property: "elements", formatter: semanticsToNode},
     {property: "classes", formatter: classToNode},
@@ -100,6 +100,13 @@ function classesToNode(classArray, element) {
     formatter: classFormatter
   };
 }
+
+function meshLayerProperties() {
+  return [
+    {property: "elements", formatter: meshpointToNode},
+    {property: "connectors", formatter: connectorToNode}
+  ];
+};
 
 function meshpointToNode(element) {
   function connectionListFormatter(label) {
