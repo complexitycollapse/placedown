@@ -28,6 +28,10 @@ export default function CacheItem({ node }) {
     model.meshLayer.load(pointer);
   }
 
+  const loadEdlClicked= () => {
+    model.meshLayer.loadEdl(EdlPointer(name));
+  }
+
   return (
     <li style={{
       color: "rgb(221, 0, 169)",
@@ -38,6 +42,7 @@ export default function CacheItem({ node }) {
         <span onClick={handleClick}>{ label }</span>
         {value && <span onClick={handleClick} style={{ color: "rgb(0, 116, 232)", marginLeft: "1rem" }}>{value}</span>}
         <input type="button" style={{ display: "inline", marginLeft: "1rem" }} value="Load" onClick={loadClicked}></input>
+        {name.includes("edl") && <input type="button" style={{ display: "inline", marginLeft: "1rem" }} value="Load Edl" onClick={loadEdlClicked}></input>}
       </div>
       {showChildren && children && <TreeComponent treeData={children} />}
     </li>

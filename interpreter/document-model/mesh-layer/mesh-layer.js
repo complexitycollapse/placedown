@@ -3,6 +3,7 @@ import Connector from "./connector";
 import WorkManager from "./work-manager";
 import Meshpoint from "./meshpoint";
 import TypeModule from "./type-module";
+import EdlLoader from "./edl-loader";
 
 export default function MeshLayer(persistenceLayer, semanticLayer) {
   const obj = Layer();
@@ -11,8 +12,14 @@ export default function MeshLayer(persistenceLayer, semanticLayer) {
   Object.assign(obj, {
     elements: [],
     connectors: [],
+    edlLoaders: [],
     typeModule: TypeModule(workManager),
     workManager,
+    loadEdl: pointer => {
+      const loader = EdlLoader(obj.load(pointer));
+      obj.edlLoaders.push(loader);
+      return loader;
+    },
     load: pointer => {
       const persister = persistenceLayer.load(pointer, onContentLoaded);
       const key = obj.assignId();

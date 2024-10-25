@@ -10,7 +10,8 @@ export default function Meshpoint(key, pointer, persister) {
     outgoing: [],
     type: undefined,
     dependencies: new ListMap(),
-    persister
+    persister,
+    get loaded() { return obj.persister.value; },
   };
 
   makeObservable(obj);

@@ -38,6 +38,34 @@ export default function TabsComponent() {
   );
 }
 
+function listProperty(element, property, itemFormatter) {
+  return  {
+    key: property,
+    element,
+    formatter: () => {
+      return {
+        label: property,
+        value: " (" + element[property].length + ")",
+        children: element[property].map(itemFormatter)
+      };
+    }
+  };
+}
+
+function mapProperty(element, property, itemFormatter) {
+  return  {
+    key: property,
+    element,
+    formatter: () => {
+      return {
+        label: property,
+        value: " (" + element[property].size + ")",
+        children: [...element[property].values()].map(itemFormatter)
+      };
+    }
+  };
+}
+
 function semanticsLayerProperties() {
   return [
     {property: "elements", formatter: semanticsToNode},
@@ -104,9 +132,24 @@ function classesToNode(classArray, element) {
 function meshLayerProperties() {
   return [
     {property: "elements", formatter: meshpointToNode},
-    {property: "connectors", formatter: connectorToNode}
+    {property: "connectors", formatter: connectorToNode},
+    {property: "edlLoaders", formatter: edlLoaderToNode}
   ];
 };
+
+function edlLoaderToNode(loader) {
+  return {
+    key: loader.meshpoint.key,
+    element: loader,
+    formatter: () => ({
+      label: JSON.stringify(loader.meshpoint.key),
+      children: [
+        meshpointToNode(loader.meshpoint),
+        mapProperty(loader, "inProgressMeshpoints", meshpointToNode)
+      ]
+    })
+  };
+}
 
 function meshpointToNode(element) {
   function connectionListFormatter(label) {
@@ -125,6 +168,7 @@ function meshpointToNode(element) {
       value: JSON.stringify(meshpoint.pointer) + " (" + meshpoint.key + ")",
       children: [
         property(meshpoint, "pointer", JSON.stringify),
+        property(meshpoint, "loaded", JSON.stringify),
         meshTypeToNode(meshpoint.type),
         property(meshpoint, "persister", p => p.type + " | " + p.origin + " (" + p.key +")"),
         { key: "incoming", element: meshpoint, formatter: connectionListFormatter("incoming")},
