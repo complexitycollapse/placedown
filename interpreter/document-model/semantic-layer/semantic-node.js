@@ -5,7 +5,7 @@ export default function SemanticNode(meshpoint, semanticType) {
     key: meshpoint.key,
     meshpoint,
     semanticType,
-    classes: () => semanticType.classes
+    classes: () => semanticType?.classes ?? []
   };
 
   makeObservable(obj);
